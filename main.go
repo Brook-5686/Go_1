@@ -42,9 +42,15 @@ func main() {
 	// Vulnerability: Using user-supplied input directly as a file path can lead to path traversal vulnerabilities.
 	// An attacker can craft a malicious path to access files outside the intended directory.
 	// Best practice is to validate and sanitize user input before using it as a file path.
+	const safeDir = "/home/user/"
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		filePath := r.URL.Query().Get("path")
-		data, err := os.ReadFile(filePath)
+		absPath, err := filepath.Abs(filepath.Join(safeDir, filePath))
+		if err != nil || !strings.HasPrefix(absPath, safeDir) {
+			http.Error(w, "Invalid file path", http.StatusBadRequest)
+			return
+		}
+		data, err := os.ReadFile(absPath)
 		if err != nil {
 			http.Error(w, "Error reading file", http.StatusInternalServerError)
 			return
