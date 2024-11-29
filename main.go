@@ -134,7 +134,10 @@ func main() {
 	// If the input string represents a number that is too large for the target integer type, it can cause unexpected behavior or security issues.
 	// Best practice is to use appropriate integer types with sufficient range and perform proper error handling and input validation.
 	val := resp.Request.URL.Query().Get("val")
-	num, _ := strconv.Atoi(val)
+	num, err := strconv.ParseInt(val, 10, 16)
+	if err != nil {
+		log.Fatal(err)
+	}
 	var intVal int16 = int16(num)
 	fmt.Println(intVal)
 
